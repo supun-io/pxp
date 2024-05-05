@@ -45,11 +45,12 @@ use pxp_ast::ReturnStatement;
 use pxp_ast::ShortOpeningTagStatement;
 use pxp_ast::StaticStatement;
 
+mod diagnostics;
 mod expressions;
 mod internal;
 mod macros;
+mod reverse;
 mod state;
-mod diagnostics;
 
 pub use diagnostics::ParserDiagnostic;
 
@@ -59,10 +60,7 @@ pub struct ParseResult {
     pub diagnostics: Vec<Diagnostic<ParserDiagnostic>>,
 }
 
-pub fn parse<B: Sized + AsRef<[u8]>>(
-    input: &B,
-    symbol_table: &mut SymbolTable,
-) -> ParseResult {
+pub fn parse<B: Sized + AsRef<[u8]>>(input: &B, symbol_table: &mut SymbolTable) -> ParseResult {
     let mut lexer = Lexer::new(input, symbol_table);
     let tokens = match lexer.tokenize() {
         Ok(tokens) => tokens,
@@ -75,6 +73,7 @@ pub fn parse<B: Sized + AsRef<[u8]>>(
 }
 
 pub fn construct(tokens: &[Token], symbol_table: &mut SymbolTable) -> ParseResult {
+    println!("tokens {:?}", tokens);
     let mut stream = TokenStream::new(tokens);
     let mut state = State::new(&mut stream, symbol_table);
     let mut ast = Vec::new();
